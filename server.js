@@ -98,14 +98,15 @@ app.get('/api/pronos', async (req, res) => {
 
 // ADD PRONO
 app.post('/api/pronos', async (req, res) => {
-  const { sport, competition, match, tip, cote, mise, type, result } = req.body;
+  const { sport, competition, match, tip, cote, mise, type, result, prono_date } = req.body;
   if (!match || !tip || !cote) return res.status(400).json({ error: 'Champs manquants' });
   const { data, error } = await supabase.from('pronos').insert({
     sport, competition, match, tip,
     cote: parseFloat(cote),
     mise: mise ? parseFloat(mise) : null,
     type: type || 'free',
-    result: result || 'pending'
+    result: result || 'pending',
+    prono_date: prono_date || null
   }).select().single();
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
