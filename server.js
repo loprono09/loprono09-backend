@@ -126,6 +126,26 @@ app.delete('/api/pronos/:id', async (req, res) => {
   res.json({ deleted: true });
 });
 
+// FORGOT PASSWORD
+app.post('/api/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email requis' });
+
+  // Check if user exists
+  const { data: member } = await supabase.from('members').select('email').eq('email', email).single();
+  if (!member) return res.status(404).json({ error: 'Email introuvable' });
+
+  // Send reset email via Supabase Auth
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://loprono09.fr'
+  });
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  console.log(`ðŸ“§ Email de rÃ©initialisation envoyÃ© Ã  ${email}`);
+  res.json({ success: true });
+});
+
 app.get('/', (req, res) => res.json({ status: 'LOPRONO09 Backend OK ðŸš€' }));
 
 const PORT = process.env.PORT || 3000;
