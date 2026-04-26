@@ -131,17 +131,12 @@ app.post('/api/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email requis' });
 
-  // Check if user exists
-  const { data: member } = await supabase.from('members').select('email').eq('email', email).single();
-  if (!member) return res.status(404).json({ error: 'Email introuvable' });
-
-  // Send reset email via Supabase Auth
+  // Send reset email via Supabase Auth (works for all users)
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: 'https://loprono09.fr'
   });
 
-  if (error) return res.status(500).json({ error: error.message });
-
+  // Always return success to avoid email enumeration
   console.log(`ðŸ“§ Email de rÃ©initialisation envoyÃ© Ã  ${email}`);
   res.json({ success: true });
 });
